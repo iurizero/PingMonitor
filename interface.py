@@ -4,9 +4,10 @@ Desenvolvido por Iuri Costa.
 """
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from datetime import datetime
 from ping_monitor import PingMonitor
+from telegram_notifier import TelegramNotifier
 
 class StatusIndicator(ttk.Frame):
     def __init__(self, parent, status, online_color, offline_color):
@@ -50,6 +51,10 @@ class PingApp:
         self.is_monitoring = False
         self.tree_items = {}
         
+        # Configuração do Telegram
+        self.telegram_enabled = False
+        self.telegram_notifier = None
+        
         self.setup_ui()
     
     def _setup_styles(self):
@@ -82,6 +87,23 @@ class PingApp:
         ttk.Button(settings_frame, text="Iniciar Monitoramento", command=self.start_monitoring).pack(side=tk.LEFT, padx=5)
         ttk.Button(settings_frame, text="Parar Monitoramento", command=self.stop_monitoring).pack(side=tk.LEFT)
         
+        # Frame para configurações do Telegram
+        telegram_frame = ttk.LabelFrame(control_frame, text="Notificações Telegram", padding=10)
+        telegram_frame.pack(fill=tk.X, pady=5)
+        
+        # Campos para token e chat_id do Telegram
+        ttk.Label(telegram_frame, text="Token do Bot:").pack(side=tk.LEFT, padx=(0, 5))
+        self.telegram_token = ttk.Entry(telegram_frame, width=40)
+        self.telegram_token.pack(side=tk.LEFT, padx=(0, 10))
+        
+        ttk.Label(telegram_frame, text="Chat ID:").pack(side=tk.LEFT, padx=(0, 5))
+        self.telegram_chat_id = ttk.Entry(telegram_frame, width=20)
+        self.telegram_chat_id.pack(side=tk.LEFT, padx=(0, 10))
+        
+        # Botão para ativar/desativar notificações
+        self.telegram_button = ttk.Button(telegram_frame, text="Ativar Notificações", command=self.toggle_telegram)
+        self.telegram_button.pack(side=tk.LEFT)
+        
         self.tree_frame = ttk.LabelFrame(main_frame, text="Hosts Monitorados", padding=10)
         self.tree_frame.pack(fill=tk.BOTH, expand=True)
         
@@ -102,6 +124,29 @@ class PingApp:
         self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
     
+    def toggle_telegram(self):
+        """Ativa ou desativa as notificações do Telegram."""
+        if not self.telegram_enabled:
+            token = self.telegram_token.get().strip()
+            chat_id = self.telegram_chat_id.get().strip()
+            
+            if not token or not chat_id:
+                messagebox.showerror("Erro", "Por favor, preencha o token do bot e o chat ID.")
+                return
+            
+            try:
+                self.telegram_notifier = TelegramNotifier(token, chat_id)
+                self.telegram_enabled = True
+                self.telegram_button.config(text="Desativar Notificações")
+                messagebox.showinfo("Sucesso", "Notificações do Telegram ativadas com sucesso!")
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao configurar o Telegram: {e}")
+        else:
+            self.telegram_enabled = False
+            self.telegram_notifier = None
+            self.telegram_button.config(text="Ativar Notificações")
+            messagebox.showinfo("Informação", "Notificações do Telegram desativadas.")
+    
     def add_host(self):
         host = self.host_entry.get().strip()
         if host:
@@ -121,6 +166,11 @@ class PingApp:
             self.hosts_data[host]["status"] = status
             self.hosts_data[host]["last_seen"] = current_time
             self.hosts_data[host]["packet_loss"] = f"{packet_loss:.1f}%"
+            
+            # Envia notificação via Telegram se estiver ativado
+            if self.telegram_enabled and self.telegram_notifier:
+                self.telegram_notifier.check_and_notify(host, alive)
+            
             self.update_tree_item(host)
     
     def update_tree_item(self, host):
