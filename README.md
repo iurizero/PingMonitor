@@ -28,7 +28,8 @@ Monitor de rede com interface gráfica que verifica o status de hosts através d
 2. Anote o **token** do bot
 3. Inicie uma conversa com o bot e envie uma mensagem qualquer
 4. Obtenha seu **chat_id** (pode ser feito usando a API do Telegram ou um bot que exibe seu ID)
-5. Configure as variáveis `TELEGRAM_TOKEN` e `TELEGRAM_CHAT_ID` no código
+5. Configure o Token do bot e o chat id no próprio aplicativo de monitoramento
+6. Escolha se quer ativar ou desativar os alertas via Telegram a qualquer momento
 
 ## 🖥️ Como Usar
 
@@ -43,6 +44,6 @@ Monitor de rede com interface gráfica que verifica o status de hosts através d
 
 ---
 
-**Desenvolvido por**  
-**Iuri Costa**  
+**Desenvolvido por**
+**Iuri Costa**
 [![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iury0)
