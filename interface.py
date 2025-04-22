@@ -104,6 +104,12 @@ class PingApp:
         self.telegram_button = ttk.Button(telegram_frame, text="Ativar Notificações", command=self.toggle_telegram)
         self.telegram_button.pack(side=tk.LEFT)
         
+        # Carrega configurações salvas
+        token, chat_id = TelegramNotifier.load_config()
+        if token and chat_id:
+            self.telegram_token.insert(0, token)
+            self.telegram_chat_id.insert(0, chat_id)
+        
         self.tree_frame = ttk.LabelFrame(main_frame, text="Hosts Monitorados", padding=10)
         self.tree_frame.pack(fill=tk.BOTH, expand=True)
         
@@ -139,6 +145,8 @@ class PingApp:
                 self.telegram_enabled = True
                 self.telegram_button.config(text="Desativar Notificações")
                 messagebox.showinfo("Sucesso", "Notificações do Telegram ativadas com sucesso!")
+                # Salva as configurações
+                TelegramNotifier.save_config(token, chat_id)
             except Exception as e:
                 messagebox.showerror("Erro", f"Erro ao configurar o Telegram: {e}")
         else:

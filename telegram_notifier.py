@@ -1,6 +1,8 @@
 import requests
 import time
-from typing import Dict, Optional
+import json
+import os
+from typing import Dict, Optional, Tuple
 
 class TelegramNotifier:
     
@@ -12,6 +14,26 @@ class TelegramNotifier:
         self.last_notification: Dict[str, float] = {}
         self.min_notification_interval = 10  # 10 segundos (NAO MEXA SEU APEDEUTA, SE MUDAR BUGA POR ALGUM MOTIVO E FICA SPAMMANDO)
         self.last_message: Dict[str, str] = {}
+    
+    @staticmethod
+    def save_config(token: str, chat_id: str) -> None:
+        config = {
+            "token": token,
+            "chat_id": chat_id
+        }
+        with open("telegram_config.json", "w") as f:
+            json.dump(config, f)
+    
+    @staticmethod
+    def load_config() -> Tuple[Optional[str], Optional[str]]:
+        try:
+            if os.path.exists("telegram_config.json"):
+                with open("telegram_config.json", "r") as f:
+                    config = json.load(f)
+                return config.get("token"), config.get("chat_id")
+        except Exception:
+            pass
+        return None, None
     
     def send_message(self, message: str) -> bool:
         try:
