@@ -46,4 +46,4 @@ Monitor de rede com interface gráfica que verifica o status de hosts através d
 
 **Desenvolvido por**
 **Iuri Costa**
-[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iury0)
+[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iurizero)
